@@ -17,13 +17,13 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>java并发 | Hexo</title>
-  <meta name="description" content="disruptor A进程和线程 进程我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，就被称为「进程」（Process）。  进程的状态  NULL -&gt; 创建状态：⼀个新进程被创建时的第⼀个状态； 创建状态 -&gt; 就绪状态：当进程被创建完成并">
+  <title>Java并发 | Hexo</title>
+  <meta name="description" content="# disruptor  # A进程和线程  ## 进程 我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，就被称为「进程」（Process）。   进程的状态  NULL -&gt; 创建状态：⼀个新进程被创建时的第⼀个状态； 创建状态 -&gt; 就绪">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java并发">
-<meta property="og:url" content="http://example.com/2023/06/08/Java%E5%B9%B6%E5%8F%91/index.html">
+<meta property="og:title" content="Java并发">
+<meta property="og:url" content="http://example.com/2023/06/09/Java%E5%B9%B6%E5%8F%91/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="disruptor A进程和线程 进程我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，就被称为「进程」（Process）。  进程的状态  NULL -&gt; 创建状态：⼀个新进程被创建时的第⼀个状态； 创建状态 -&gt; 就绪状态：当进程被创建完成并">
+<meta property="og:description" content="# disruptor  # A进程和线程  ## 进程 我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，就被称为「进程」（Process）。   进程的状态  NULL -&gt; 创建状态：⼀个新进程被创建时的第⼀个状态； 创建状态 -&gt; 就绪">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652014692593-7cc7e2f5-2051-4120-b45f-a72e9983d1dc.png#averageHue=%23f9f5ef&clientId=u34a44d6d-2b13-4&from=paste&height=238&id=uf1046b14&originHeight=392&originWidth=1104&originalType=binary&ratio=1&rotation=0&showTitle=false&size=82991&status=done&style=none&taskId=u2344707a-b4f7-4790-82a7-5bc483989c0&title=&width=669.0908704184983">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652014844389-9ffe9951-d05d-4fe7-9d9d-e8c62341358d.png#averageHue=%23faf9f8&clientId=u34a44d6d-2b13-4&from=paste&height=425&id=u29e48f40&originHeight=701&originWidth=1151&originalType=binary&ratio=1&rotation=0&showTitle=false&size=136033&status=done&style=none&taskId=u1ed509a8-e34a-47d3-afc5-4148bcec457&title=&width=697.575717256967">
@@ -80,13 +80,14 @@
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1651917371100-4cc26771-5c62-4c62-9941-145c70d6e7af.png#averageHue=%23f5f4f4&clientId=u4d909540-ad5c-4&from=paste&height=661&id=u29f33815&originHeight=1091&originWidth=1621&originalType=binary&ratio=1&rotation=0&showTitle=false&size=215501&status=done&style=none&taskId=u53d262f9-efc8-4c3c-8fd6-83c42798683&title=&width=982.4241856416537">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1651917379646-6e0109e8-bcee-4326-b894-d977faa0d175.png#averageHue=%23f4f4f3&clientId=u4d909540-ad5c-4&from=paste&height=613&id=u3dc6bedb&originHeight=1012&originWidth=1638&originalType=binary&ratio=1&rotation=0&showTitle=false&size=204612&status=done&style=none&taskId=u697f51a6-9611-44f0-a524-b21e1021f26&title=&width=992.7272153491849">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652337060162-a0fcea0d-a450-4433-93a6-65b0d9f33e98.png#averageHue=%23eaeee7&clientId=uda4812d7-352a-4&from=paste&height=413&id=u55a4105c&originHeight=620&originWidth=1522&originalType=binary&ratio=1&rotation=0&showTitle=false&size=449961&status=done&style=none&taskId=u11a72a2e-02a2-4b63-9698-9280efc6a4a&title=&width=1014.6666666666666">
-<meta property="article:published_time" content="2023-06-08T14:31:34.273Z">
-<meta property="article:modified_time" content="2023-06-08T14:33:55.391Z">
+<meta property="article:published_time" content="2023-06-09T06:04:22.420Z">
+<meta property="article:modified_time" content="2023-06-09T06:15:17.212Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="并发">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652014692593-7cc7e2f5-2051-4120-b45f-a72e9983d1dc.png#averageHue=%23f9f5ef&clientId=u34a44d6d-2b13-4&from=paste&height=238&id=uf1046b14&originHeight=392&originWidth=1104&originalType=binary&ratio=1&rotation=0&showTitle=false&size=82991&status=done&style=none&taskId=u2344707a-b4f7-4790-82a7-5bc483989c0&title=&width=669.0908704184983">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://example.com/2023/06/08/Java%E5%B9%B6%E5%8F%91/index.html">
+  <link rel="canonical" href="http://example.com/2023/06/09/Java%E5%B9%B6%E5%8F%91/index.html">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -99,25 +100,25 @@
   
   
   
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
   
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
   
 <meta name="generator" content="Hexo 6.3.0"></head>
 
 
-<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+<body class="main-center theme-blue" itemscope itemtype="http://schema.org/WebPage">
   <header class="header" itemscope itemtype="http://schema.org/WPHeader">
   <div class="slimContent">
     <div class="navbar-header">
       
       
       <div class="profile-block text-center">
-        <a id="avatar" href="https://github.com/cofess" target="_blank">
-          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        <a id="avatar" href="https://github.com/sugarGood" target="_blank">
+          <img class="img-circle img-rotate" src="/images/a.jpg" width="200" height="200">
         </a>
-        <h2 id="name" class="hidden-xs hidden-sm">昵称</h2>
-        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Web Developer &amp; Designer</h3>
-        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Shenzhen, China</small>
+        <h2 id="name" class="hidden-xs hidden-sm">SugarGood</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Think &amp; Practice</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> ChongQing, China</small>
       </div>
       
       <div class="search" id="search-form-wrap">
@@ -153,7 +154,7 @@
       </button>
     </div>
     <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
-      <ul class="nav navbar-nav main-nav ">
+      <ul class="nav navbar-nav main-nav menu-highlight">
         
         
         <li class="menu-item menu-item-home">
@@ -206,16 +207,6 @@
         </li>
         
         
-        <li class="menu-item menu-item-books">
-          <a href="/books">
-            
-            <i class="icon icon-book-fill"></i>
-            
-            <span class="menu-title">书单</span>
-          </a>
-        </li>
-        
-        
         <li class="menu-item menu-item-links">
           <a href="/links">
             
@@ -240,7 +231,7 @@
 	
     <ul class="social-links">
     	
-        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        <li><a href="https://github.com/sugarGood" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
         
         <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
         
@@ -273,12 +264,33 @@
 
     
       
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
 
     
       
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/" rel="tag">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
 
     
       
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/mysql/" style="font-size: 13px;">mysql</a> <a href="/tags/%E5%B9%B6%E5%8F%91/" style="font-size: 13px;">并发</a>
+    </div>
+  </div>
+
     
       
   <div class="widget">
@@ -300,13 +312,13 @@
             
             <div class="item-inner">
               <p class="item-category">
-                
+                <a class="category-link" href="/categories/java/">java</a>
               </p>
               <p class="item-title">
-                <a href="/2023/06/08/Java%E5%B9%B6%E5%8F%91/" class="title">java并发</a>
+                <a href="/2023/06/09/Java%E5%B9%B6%E5%8F%91/" class="title">Java并发</a>
               </p>
               <p class="item-date">
-                <time datetime="2023-06-08T14:31:34.273Z" itemprop="datePublished">2023-06-08</time>
+                <time datetime="2023-06-09T06:04:22.420Z" itemprop="datePublished">2023-06-09</time>
               </p>
             </div>
           </li>
@@ -315,7 +327,7 @@
             
             <div class="item-inner">
               <p class="item-category">
-                
+                <a class="category-link" href="/categories/java/">java</a>
               </p>
               <p class="item-title">
                 <a href="/2023/05/12/Mysql/" class="title">Mysql</a>
@@ -352,6 +364,15 @@
 
   
   
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="toc-number">1.</span> <span class="toc-text">进程的状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%8E%A7%E5%88%B6%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">进程的控制结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">线程操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">创建进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%88%E6%AD%A2%E8%BF%9B%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">终止进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E%E8%BF%9B%E7%A8%8B"><span class="toc-number">3.3.</span> <span class="toc-text">阻塞进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%94%A4%E9%86%92%E8%BF%9B%E7%A8%8B"><span class="toc-number">3.4.</span> <span class="toc-text">唤醒进程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="toc-number">4.</span> <span class="toc-text">进程的上下文切换</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B"><span class="toc-number"></span> <span class="toc-text">线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E7%9A%84%E2%BD%90%E8%BE%83"><span class="toc-number">1.</span> <span class="toc-text">线程与进程的⽐较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E2%BD%82%E5%88%87%E6%8D%A2"><span class="toc-number">2.</span> <span class="toc-text">线程的上下⽂切换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%92%8C%E8%BF%90%E8%A1%8C%E7%BA%BF%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">创建和运行线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Thread"><span class="toc-number">3.1.</span> <span class="toc-text">Thread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Runnable"><span class="toc-number">3.2.</span> <span class="toc-text">Runnable</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Callable"><span class="toc-number">3.3.</span> <span class="toc-text">Callable</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%96%B9%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">常见方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#start%E5%92%8Crun"><span class="toc-number">4.1.</span> <span class="toc-text">start和run</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sleep%E5%92%8Cyield"><span class="toc-number">4.2.</span> <span class="toc-text">sleep和yield</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#interrupt"><span class="toc-number">4.3.</span> <span class="toc-text">interrupt()</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#interrupted-%E6%96%B9%E6%B3%95"><span class="toc-number">4.3.1.</span> <span class="toc-text">interrupted()方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#isInterrupted"><span class="toc-number">4.3.2.</span> <span class="toc-text">isInterrupted()</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Join"><span class="toc-number">4.4.</span> <span class="toc-text">Join</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#wait-notify"><span class="toc-number">4.5.</span> <span class="toc-text">wait notify</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">4.6.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sleep%E5%92%8Cwait%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">4.7.</span> <span class="toc-text">sleep和wait的区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#park-unpark"><span class="toc-number">4.8.</span> <span class="toc-text">park unpark</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-number">4.9.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E6%8E%A8%E8%8D%90%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">4.10.</span> <span class="toc-text">不推荐的方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%88%E6%8A%A4%E7%BA%BF%E7%A8%8B"><span class="toc-number">5.</span> <span class="toc-text">守护线程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#monitor"><span class="toc-number"></span> <span class="toc-text">monitor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="toc-number"></span> <span class="toc-text">关闭线程池</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JUC"><span class="toc-number"></span> <span class="toc-text">JUC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#reetrantLock"><span class="toc-number"></span> <span class="toc-text">reetrantLock</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Condition-%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F"><span class="toc-number">1.</span> <span class="toc-text">Condition 条件变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="toc-number"></span> <span class="toc-text">线程池</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ThreadPoolExecutor"><span class="toc-number"></span> <span class="toc-text">ThreadPoolExecutor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%8A%B6%E6%80%81"><span class="toc-number">1.</span> <span class="toc-text">线程池状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">构造方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="toc-number">3.</span> <span class="toc-text">工厂方法创建线程池</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#newFixedThreadPool"><span class="toc-number">3.1.</span> <span class="toc-text">newFixedThreadPool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newCacheThreadPool"><span class="toc-number">3.2.</span> <span class="toc-text">newCacheThreadPool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newSingleThreadExecutor"><span class="toc-number">3.3.</span> <span class="toc-text">newSingleThreadExecutor</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fork-x2F-Join"><span class="toc-number"></span> <span class="toc-text">Fork&#x2F;Join</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AQS"><span class="toc-number"></span> <span class="toc-text">AQS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reetrantLock%E5%8E%9F%E7%90%86"><span class="toc-number"></span> <span class="toc-text">reetrantLock原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E9%87%8D%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-number">0.1.</span> <span class="toc-text">可重入原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E6%89%93%E6%96%AD%E5%8E%9F%E7%90%86"><span class="toc-number">0.2.</span> <span class="toc-text">可打断原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AC%E5%B9%B3%E9%94%81%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">0.3.</span> <span class="toc-text">公平锁的原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8Fcondition%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">0.4.</span> <span class="toc-text">条件变量condition的实现原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ReentrantReadWriteLock"><span class="toc-number"></span> <span class="toc-text">ReentrantReadWriteLock</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#StampedLock"><span class="toc-number"></span> <span class="toc-text">StampedLock</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Semaphore"><span class="toc-number"></span> <span class="toc-text">Semaphore</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86-1"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CountdownLatch"><span class="toc-number"></span> <span class="toc-text">CountdownLatch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86-2"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CyclicBarrier"><span class="toc-number"></span> <span class="toc-text">CyclicBarrier</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CompletableFuture"><span class="toc-number"></span> <span class="toc-text">CompletableFuture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="toc-number">0.1.</span> <span class="toc-text">基本用法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9E%E8%B0%83-whenComplete%E3%80%81whenCompleteAsync"><span class="toc-number">0.2.</span> <span class="toc-text">回调 whenComplete、whenCompleteAsync</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%A7%E7%BB%AD%E6%89%A7%E8%A1%8C-thenApply-thenAccept-thenRun"><span class="toc-number">0.3.</span> <span class="toc-text">继续执行 thenApply thenAccept thenRun</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%84%E5%90%88-%E4%B8%A4%E4%B8%AA%E9%83%BD%E5%A4%84%E7%90%86%E5%AE%8C%E6%88%90-thenCombine-thenAcceptBoth-runAfterBoth"><span class="toc-number">0.4.</span> <span class="toc-text">组合 两个都处理完成 thenCombine thenAcceptBoth runAfterBoth</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%84%E5%90%88-%E5%8F%AA%E9%9C%80%E4%B8%80%E4%B8%AA%E5%A4%84%E7%90%86%E5%AE%8C%E6%88%90"><span class="toc-number">0.5.</span> <span class="toc-text">组合 只需一个处理完成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E4%BB%BB%E5%8A%A1-allOf-anyOf"><span class="toc-number">0.6.</span> <span class="toc-text">多任务 allOf anyOf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#thenCompose-%E5%B5%8C%E5%A5%97future"><span class="toc-number">0.7.</span> <span class="toc-text">thenCompose 嵌套future</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86-exceptionally-handle"><span class="toc-number">0.8.</span> <span class="toc-text">异常处理 exceptionally handle</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E9%9B%86%E5%90%88%E7%B1%BB"><span class="toc-number"></span> <span class="toc-text">线程安全的集合类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ConcurrentHashMap"><span class="toc-number">1.</span> <span class="toc-text">ConcurrentHashMap</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E7%90%86-3"><span class="toc-number">1.1.</span> <span class="toc-text">原理</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number"></span> <span class="toc-text">应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="toc-number"></span> <span class="toc-text">控制线程的执行顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A4%E6%9B%BF%E8%BE%93%E5%87%BA"><span class="toc-number"></span> <span class="toc-text">交替输出</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#JMM"><span class="toc-number"></span> <span class="toc-text">JMM</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="toc-number"></span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="toc-number"></span> <span class="toc-text">可见性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#volatile"><span class="toc-number"></span> <span class="toc-text">volatile</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86-4"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92"><span class="toc-number"></span> <span class="toc-text">指令重排</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#happens-before"><span class="toc-number"></span> <span class="toc-text">happens-before</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS"><span class="toc-number"></span> <span class="toc-text">CAS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LongAdder-%E5%8E%9F%E5%AD%90%E7%B4%AF%E5%8A%A0%E5%99%A8"><span class="toc-number">1.</span> <span class="toc-text">LongAdder 原子累加器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E4%BC%98%E5%8C%96"><span class="toc-number"></span> <span class="toc-text">synchronized优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81"><span class="toc-number">1.</span> <span class="toc-text">轻量级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81%E8%86%A8%E8%83%80"><span class="toc-number">2.</span> <span class="toc-text">锁膨胀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E9%87%8F%E7%BA%A7%E9%94%81%E7%9A%84%E4%BC%98%E5%8C%96"><span class="toc-number">3.</span> <span class="toc-text">重量级锁的优化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E6%97%8B%E4%BC%98%E5%8C%96"><span class="toc-number">3.1.</span> <span class="toc-text">自旋优化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%8F%E5%90%91%E9%94%81"><span class="toc-number">4.</span> <span class="toc-text">偏向锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E5%AE%83%E4%BC%98%E5%8C%96"><span class="toc-number">5.</span> <span class="toc-text">其它优化</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
 <main class="main" role="main">
   <div class="content">
   <article id="post-Java并发" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
@@ -361,7 +382,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      java并发
+      Java并发
     </h1>
   
 
@@ -369,25 +390,59 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2023/06/08/Java%E5%B9%B6%E5%8F%91/" class="article-date">
-	  <time datetime="2023-06-08T14:31:34.273Z" itemprop="datePublished">2023-06-08</time>
+	<a href="/2023/06/09/Java%E5%B9%B6%E5%8F%91/" class="article-date">
+	  <time datetime="2023-06-09T06:04:22.420Z" itemprop="datePublished">2023-06-09</time>
 	</a>
 </span>
         
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </span>
+
         
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a>
+  </span>
+
+
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数: 21.4k
+<!-- 		(字) -->
+		</span>
+	
+	
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/09/Java%E5%B9%B6%E5%8F%91/#comments" class="article-comment-link">评论</a>
+            <span class="valine-comment-count" data-xid="/2023/06/09/Java%E5%B9%B6%E5%8F%91/"></span>条
+        </span>
 
         
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/08/Java%E5%B9%B6%E5%8F%91/#comments" class="article-comment-link">评论</a></span>
-        
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/06/09/Java%E5%B9%B6%E5%8F%91/" class="leancloud_visitors"  data-flag-title="Java并发">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p><a name="GJCOp"></a></p>
-<h1 id="disruptor"><a href="#disruptor" class="headerlink" title="disruptor"></a>disruptor</h1><p><a name="v7F26"></a></p>
-<h1 id="A进程和线程"><a href="#A进程和线程" class="headerlink" title="A进程和线程"></a>A进程和线程</h1><p><a name="AoAR9"></a></p>
-<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p>我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，<br />就被称为「进程」（Process）。</p>
+        <meta name="referrer" content="no-referrer"/>
+<a name="GJCOp"></a>
+# disruptor
+<a name="v7F26"></a>
+# A进程和线程
+<a name="AoAR9"></a>
+## 进程
+我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，<br />就被称为「进程」（Process）。
+
 <p><a name="QBqrX"></a></p>
 <h3 id="进程的状态"><a href="#进程的状态" class="headerlink" title="进程的状态"></a>进程的状态</h3><p><img src="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652014692593-7cc7e2f5-2051-4120-b45f-a72e9983d1dc.png#averageHue=%23f9f5ef&clientId=u34a44d6d-2b13-4&from=paste&height=238&id=uf1046b14&originHeight=392&originWidth=1104&originalType=binary&ratio=1&rotation=0&showTitle=false&size=82991&status=done&style=none&taskId=u2344707a-b4f7-4790-82a7-5bc483989c0&title=&width=669.0908704184983" alt="image.png"></p>
 <ul>
@@ -978,7 +1033,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://example.com/2023/06/08/Java%E5%B9%B6%E5%8F%91/" title="java并发" target="_blank" rel="external">http://example.com/2023/06/08/Java并发/</a>
+      <a href="http://example.com/2023/06/09/Java%E5%B9%B6%E5%8F%91/" title="Java并发" target="_blank" rel="external">http://example.com/2023/06/09/Java并发/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -992,13 +1047,13 @@
   <div class="panel-body">
     <figure class="media">
       <div class="media-left">
-        <a href="https://github.com/cofess" target="_blank" class="img-burn thumb-sm visible-lg">
-          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        <a href="https://github.com/sugarGood" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/a.jpg" class="img-rounded w-full" alt="">
         </a>
       </div>
       <div class="media-body">
-        <h3 class="media-heading"><a href="https://github.com/cofess" target="_blank"><span class="text-dark">昵称</span><small class="ml-1x">Web Developer &amp; Designer</small></a></h3>
-        <div>个人简介。</div>
+        <h3 class="media-heading"><a href="https://github.com/sugarGood" target="_blank"><span class="text-dark">SugarGood</span><small class="ml-1x">Think &amp; Practice</small></a></h3>
+        <div>一个大帅比。</div>
       </div>
     </figure>
   </div>
@@ -1011,7 +1066,7 @@
     
   <section id="comments">
   	
-           
+      <div id="vcomments"></div>
     
   </section>
 
@@ -1029,6 +1084,14 @@
       <a href="/2023/05/12/Mysql/" title="Mysql"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
     
   </ul>
   
@@ -1092,6 +1155,8 @@
 
 
 
+
+
 </main>
 
   <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
@@ -1099,7 +1164,7 @@
 	
     <ul class="social-links">
     	
-        <li><a href="https://github.com/cofess" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        <li><a href="https://github.com/sugarGood" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
         
         <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
         
@@ -1118,6 +1183,7 @@
         </div>
     </div>
 </footer>
+
   <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
 <script>
 window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
@@ -1160,26 +1226,60 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
    
     
-  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
-  <script src="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
   <script type="text/javascript">
-  var gitalk = new Gitalk({
-    clientID: 'b33b8a51d6e2c2d83af6',
-    clientSecret: 'f0137243e3629fee3696898bb98b8e3dec55ed87',
-    repo: 'https://github.com/sugarGood/thinkpra.git',
-    owner: 'sugarGood',
-    admin: ['sugarGood'],
-    id: md5(location.pathname),
-    distractionFreeMode: true,
-    language: 'zh-CN',
-    enableHotKey: 'true'
-  })
-  gitalk.render('comments')
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: true,
+    notify: true,
+    appId: 'QEI0gu3ZchE5x4TcybdvG8iL-gzGzoHsz',
+    appKey: 'bqHluNWepzDS18qbu1Nk8m7Q',
+    placeholder: '留下你的评论o(*￣▽￣*)ブ',
+    avatar: 'monsterid',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
   </script>
-      
+
+     
 
 
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
 
 
 
