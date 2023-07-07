@@ -14,6 +14,7 @@ http://example.com/tags/nacos/
 http://example.com/tags/mysql/
 http://example.com/tags/OS/
 http://example.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/
-http://example.com/tags/Java%E5%9F%BA%E7%A1%80%EF%BC%8CJUC/
+http://example.com/tags/Java%E5%9F%BA%E7%A1%80/
+http://example.com/tags/JUC/
 http://example.com/categories/%E6%BA%90%E7%A0%81/
 http://example.com/categories/%E7%AC%94%E8%AE%B0/
