@@ -11,7 +11,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/10/hello-world/</loc>
+    <loc>http://example.com/2023/06/26/hello-world/</loc>
     
     <lastmod>2023-06-09</lastmod>
     
@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/06/09/Java%E5%B9%B6%E5%8F%91/</loc>
+    <loc>http://example.com/2023/06/26/Java%E5%B9%B6%E5%8F%91/</loc>
     
     <lastmod>2023-06-09</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/2023/05/12/Mysql/</loc>
+    <loc>http://example.com/2023/06/26/Mysql/</loc>
     
     <lastmod>2023-06-09</lastmod>
     
@@ -65,6 +65,15 @@
   </url>
   
   <url>
+    <loc>http://example.com/about/index.html</loc>
+    
+    <lastmod>2023-06-09</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://example.com/books/index.html</loc>
     
     <lastmod>2023-06-09</lastmod>
@@ -75,15 +84,6 @@
   
   <url>
     <loc>http://example.com/categories/index.html</loc>
-    
-    <lastmod>2023-06-09</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://example.com/about/index.html</loc>
     
     <lastmod>2023-06-09</lastmod>
     
@@ -110,7 +110,7 @@
 
   
   <url>
-    <loc>http://example.com/tags/hello/</loc>
+    <loc>http://example.com/tags/nacos/</loc>
     <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -131,7 +131,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/tags/nacos/</loc>
+    <loc>http://example.com/tags/hello/</loc>
     <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -140,14 +140,14 @@
 
   
   <url>
-    <loc>http://example.com/categories/java/</loc>
+    <loc>http://example.com/categories/%E6%BA%90%E7%A0%81/</loc>
     <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://example.com/categories/%E6%BA%90%E7%A0%81/</loc>
+    <loc>http://example.com/categories/java/</loc>
     <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
