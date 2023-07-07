@@ -18,12 +18,12 @@
   
   
   <title>浅析nacos源码一 服务注册 | SugarGood</title>
-  <meta name="description" content="源码浅析第一篇 从nacos开始！ nacos基本架构Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。看一下官网给的架构图 和 一些基本概念服务注册中心 (Service Registry)服务注册中心，它是服务">
+  <meta name="description" content="源码浅析第一篇 从nacos开始！ nacos基本架构Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。看一下官网给的架构图 和 一些基本概念服务注册中心 (Service Registry)服务注册中心，它是">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅析nacos源码一 服务注册">
 <meta property="og:url" content="http://example.com/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/index.html">
 <meta property="og:site_name" content="SugarGood">
-<meta property="og:description" content="源码浅析第一篇 从nacos开始！ nacos基本架构Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。看一下官网给的架构图 和 一些基本概念服务注册中心 (Service Registry)服务注册中心，它是服务">
+<meta property="og:description" content="源码浅析第一篇 从nacos开始！ nacos基本架构Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。看一下官网给的架构图 和 一些基本概念服务注册中心 (Service Registry)服务注册中心，它是">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688607280706-fd929027-f588-4e74-a9cd-06b6837d5a10.png#averageHue=%23fdfefc&clientId=ucc0d7059-2728-4&from=paste&height=333&id=uc77adc6b&originHeight=499&originWidth=1114&originalType=binary&ratio=1.5&rotation=0&showTitle=true&size=241973&status=done&style=none&taskId=u84ce4b08-0561-4cda-bd9e-60d3185f746&title=nacos%E6%9E%B6%E6%9E%84%E5%9B%BE&width=742.6666666666666">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688610412059-4aceb24c-4497-4746-bc46-e2d1a45501d3.png#averageHue=%23cdecc8&clientId=u6e415c8e-3ad7-4&from=paste&height=430&id=aSvTh&originHeight=645&originWidth=989&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=179987&status=done&style=none&taskId=u9e8e761a-f54a-4fc9-9b1f-edf4556b314&title=&width=659.3333333333334">
@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715651831-e2b11698-4118-4ed5-8d46-29a900713640.png#averageHue=%232f2d2c&clientId=u678182f1-a85b-4&from=paste&height=46&id=VlPuZ&originHeight=69&originWidth=1296&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11953&status=done&style=none&taskId=u4488131e-dbaa-4aab-9d80-30986ca6423&title=&width=864">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715683037-3c9ed45f-0a3d-467c-89ef-6a37171e2059.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=215&id=u02d44123&originHeight=323&originWidth=1414&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=48185&status=done&style=none&taskId=u8d22beac-7786-4adc-ae51-b1d1b1b1754&title=&width=942.6666666666666">
 <meta property="article:published_time" content="2023-07-07T09:29:10.792Z">
-<meta property="article:modified_time" content="2023-07-07T09:30:00.860Z">
+<meta property="article:modified_time" content="2023-07-07T13:17:35.881Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="nacos">
 <meta name="twitter:card" content="summary">
@@ -449,7 +449,9 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>源码浅析第一篇 从nacos开始！</p>
+        <meta name="referrer" content="no-referrer"/>
+
+<p>源码浅析第一篇 从nacos开始！</p>
 <h1 id="nacos基本架构"><a href="#nacos基本架构" class="headerlink" title="nacos基本架构"></a>nacos基本架构</h1><p>Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。<br>看一下官网给的架构图 和 一些基本概念<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688607280706-fd929027-f588-4e74-a9cd-06b6837d5a10.png#averageHue=%23fdfefc&clientId=ucc0d7059-2728-4&from=paste&height=333&id=uc77adc6b&originHeight=499&originWidth=1114&originalType=binary&ratio=1.5&rotation=0&showTitle=true&size=241973&status=done&style=none&taskId=u84ce4b08-0561-4cda-bd9e-60d3185f746&title=nacos%E6%9E%B6%E6%9E%84%E5%9B%BE&width=742.6666666666666" alt="nacos架构图" title="nacos架构图"><br><strong>服务注册中心 (Service Registry)</strong><br>服务注册中心，它是服务，其实例及元数据的数据库。服务实例在启动时注册到<strong>服务注册表</strong>，并在关闭时注销。服务和路由器的客户端查询服务注册表以查找服务的可用实例。服务注册中心可能会调用服务实例的健康检查 API 来验证它是否能够处理请求。<br><strong>注册表结构</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688610412059-4aceb24c-4497-4746-bc46-e2d1a45501d3.png#averageHue=%23cdecc8&clientId=u6e415c8e-3ad7-4&from=paste&height=430&id=aSvTh&originHeight=645&originWidth=989&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=179987&status=done&style=none&taskId=u9e8e761a-f54a-4fc9-9b1f-edf4556b314&title=&width=659.3333333333334" alt="image.png"><br><strong>服务元数据 (Service Metadata)</strong><br>服务元数据是指包括服务端点(endpoints)、服务标签、服务版本号、服务实例权重、路由规则、安全策略等描述服务的数据。<br><strong>服务提供方 (Service Provider)</strong><br>是指提供可复用和可调用服务的应用方。<br><strong>服务消费方 (Service Consumer)</strong><br>是指会发起对某个服务调用的应用方。</p>
 <h1 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h1><p>Springcloud提供了一套服务自动注册的机制，其实就是三个接口，市面上的注册中心都会实现这三个接口</p>
 <h2 id="Registration"><a href="#Registration" class="headerlink" title="Registration"></a>Registration</h2><p><strong>服务实例数据封装</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688611993338-e0f520b3-1823-4ea9-a146-b71c690a8b1b.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=69&id=u9555b171&originHeight=103&originWidth=808&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=9057&status=done&style=none&taskId=uc6dd6656-d30c-452f-806e-4fa4f8a6e25&title=&width=538.6666666666666" alt="image.png"><br>可以看到服务实例一般包含以下一些属性<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612022928-77ec25f9-a649-4f72-859c-fd1168640fdf.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=741&id=uf0bd1382&originHeight=1111&originWidth=661&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=78870&status=done&style=none&taskId=u59439627-2aab-4e14-80d1-1011dd25195&title=&width=440.6666666666667" alt="image.png"><br><strong>nacos中的实现 NacosRegistration</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622277713-f0cd4727-cfb4-463f-b743-507bf39589c4.png#averageHue=%23312f2e&clientId=u6e415c8e-3ad7-4&from=paste&height=49&id=u64a6e309&originHeight=73&originWidth=943&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10811&status=done&style=none&taskId=u73616782-30d0-4d9b-b5f6-36926b40a1c&title=&width=628.6666666666666" alt="image.png"></p>
