@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/</loc>
+    
+    <lastmod>2023-07-07</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://example.com/2023/05/10/hello-world/</loc>
     
     <lastmod>2023-06-09</lastmod>
@@ -94,7 +103,7 @@
 
   <url>
     <loc>http://example.com/</loc>
-    <lastmod>2023-06-09</lastmod>
+    <lastmod>2023-07-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -102,21 +111,28 @@
   
   <url>
     <loc>http://example.com/tags/hello/</loc>
-    <lastmod>2023-06-09</lastmod>
+    <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/%E5%B9%B6%E5%8F%91/</loc>
-    <lastmod>2023-06-09</lastmod>
+    <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://example.com/tags/mysql/</loc>
-    <lastmod>2023-06-09</lastmod>
+    <lastmod>2023-07-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/tags/nacos/</loc>
+    <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -125,7 +141,14 @@
   
   <url>
     <loc>http://example.com/categories/java/</loc>
-    <lastmod>2023-06-09</lastmod>
+    <lastmod>2023-07-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/categories/%E6%BA%90%E7%A0%81/</loc>
+    <lastmod>2023-07-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

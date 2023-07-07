@@ -1,3 +1,4 @@
+http://example.com/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/
 http://example.com/2023/05/10/hello-world/
 http://example.com/links/index.html
 http://example.com/2023/06/09/Java%E5%B9%B6%E5%8F%91/
@@ -12,4 +13,6 @@ http://example.com/
 http://example.com/tags/hello/
 http://example.com/tags/%E5%B9%B6%E5%8F%91/
 http://example.com/tags/mysql/
+http://example.com/tags/nacos/
 http://example.com/categories/java/
+http://example.com/categories/%E6%BA%90%E7%A0%81/

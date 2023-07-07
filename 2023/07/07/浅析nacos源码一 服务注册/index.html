@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>浅析nacos源码一 服务注册 | SugarGood</title>
+  <meta name="description" content="源码浅析第一篇 从nacos开始！ nacos基本架构Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。看一下官网给的架构图 和 一些基本概念服务注册中心 (Service Registry)服务注册中心，它是服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析nacos源码一 服务注册">
+<meta property="og:url" content="http://example.com/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/index.html">
+<meta property="og:site_name" content="SugarGood">
+<meta property="og:description" content="源码浅析第一篇 从nacos开始！ nacos基本架构Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。看一下官网给的架构图 和 一些基本概念服务注册中心 (Service Registry)服务注册中心，它是服务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688607280706-fd929027-f588-4e74-a9cd-06b6837d5a10.png#averageHue=%23fdfefc&clientId=ucc0d7059-2728-4&from=paste&height=333&id=uc77adc6b&originHeight=499&originWidth=1114&originalType=binary&ratio=1.5&rotation=0&showTitle=true&size=241973&status=done&style=none&taskId=u84ce4b08-0561-4cda-bd9e-60d3185f746&title=nacos%E6%9E%B6%E6%9E%84%E5%9B%BE&width=742.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688610412059-4aceb24c-4497-4746-bc46-e2d1a45501d3.png#averageHue=%23cdecc8&clientId=u6e415c8e-3ad7-4&from=paste&height=430&id=aSvTh&originHeight=645&originWidth=989&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=179987&status=done&style=none&taskId=u9e8e761a-f54a-4fc9-9b1f-edf4556b314&title=&width=659.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688611993338-e0f520b3-1823-4ea9-a146-b71c690a8b1b.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=69&id=u9555b171&originHeight=103&originWidth=808&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=9057&status=done&style=none&taskId=uc6dd6656-d30c-452f-806e-4fa4f8a6e25&title=&width=538.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612022928-77ec25f9-a649-4f72-859c-fd1168640fdf.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=741&id=uf0bd1382&originHeight=1111&originWidth=661&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=78870&status=done&style=none&taskId=u59439627-2aab-4e14-80d1-1011dd25195&title=&width=440.6666666666667">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622277713-f0cd4727-cfb4-463f-b743-507bf39589c4.png#averageHue=%23312f2e&clientId=u6e415c8e-3ad7-4&from=paste&height=49&id=u64a6e309&originHeight=73&originWidth=943&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10811&status=done&style=none&taskId=u73616782-30d0-4d9b-b5f6-36926b40a1c&title=&width=628.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688613019521-b67aba19-27e2-46d5-ada0-0d8f1f609dbb.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=729&id=uc49bc7c5&originHeight=1094&originWidth=997&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=107119&status=done&style=none&taskId=ufb4c484c-7dc5-4e76-8136-2a0405e8caa&title=&width=664.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612520525-f00305b2-9140-4f66-af6f-dc2f09d482d1.png#averageHue=%23302f2d&clientId=u6e415c8e-3ad7-4&from=paste&height=55&id=udc5e4c2f&originHeight=82&originWidth=1012&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11726&status=done&style=none&taskId=u67597ffc-6a40-43d8-8fc7-06a27e40594&title=&width=674.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612621492-f0af9c72-de3b-40bf-af7a-54d8f2447b8f.png#averageHue=%232e2d2c&clientId=u6e415c8e-3ad7-4&from=paste&height=89&id=u54612ea8&originHeight=133&originWidth=584&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=8091&status=done&style=none&taskId=ucfdfa7b2-2e28-4bac-b58e-2a50a07fef4&title=&width=389.3333333333333">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612656355-2a5ab86b-4f87-444e-8749-4e7495cb7aa2.png#averageHue=%23302e2d&clientId=u6e415c8e-3ad7-4&from=paste&height=105&id=u4fb9c927&originHeight=158&originWidth=1045&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=32553&status=done&style=none&taskId=ube9fb3d0-a935-4c77-9a20-d58b041c196&title=&width=696.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612751468-78b82d62-db5a-462b-bfbf-a1f95891f88e.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=271&id=u7adc3bb9&originHeight=406&originWidth=1012&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=57693&status=done&style=none&taskId=u5fead1d6-2fdd-4c0a-87e3-9610235b5f5&title=&width=674.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612924028-a7f16a55-36d4-40c1-991a-3708b42a4797.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=511&id=ub25079d4&originHeight=766&originWidth=1113&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=97728&status=done&style=none&taskId=u9ca2274a-602f-413e-b3bf-bf57e632758&title=&width=742">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612965552-739a6159-9866-4d5d-a76d-5c3f225d43d0.png#averageHue=%23302f2d&clientId=u6e415c8e-3ad7-4&from=paste&height=75&id=u2394750c&originHeight=113&originWidth=736&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=13692&status=done&style=none&taskId=u47c7a979-d813-4887-9043-c721a256a93&title=&width=490.6666666666667">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688613236285-210fb22f-b1f3-42d5-ab07-350443fd0371.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=607&id=uaf9c523a&originHeight=910&originWidth=1158&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=114115&status=done&style=none&taskId=u3e15022c-db11-4064-8b3e-18b7f245019&title=&width=772">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697818159-daa55f80-7988-496e-9766-79387b753af3.png#averageHue=%232e2d2c&clientId=u678182f1-a85b-4&from=paste&height=249&id=u8b4960dd&originHeight=373&originWidth=1000&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=69417&status=done&style=none&taskId=ud4fd3b3b-22c8-4b42-9d45-2dcbcfb5e9d&title=&width=666.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688613702905-f5aeb389-9750-4024-9088-15dc86513e66.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=795&id=ud4881986&originHeight=1192&originWidth=1137&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=188836&status=done&style=none&taskId=u05091cf3-23a8-4768-b6b5-e30aff038de&title=&width=758">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622531216-762a0650-20c1-4821-8a46-bf7012e857eb.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=38&id=bXDqa&originHeight=57&originWidth=750&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=6856&status=done&style=none&taskId=u7ceb4d1a-f813-4a04-8a7d-d4141fa94a0&title=&width=500">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622613862-91a7a40d-35d4-497d-a129-0c9a57fbbed3.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=100&id=n53Iq&originHeight=150&originWidth=984&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=23923&status=done&style=none&taskId=u6629a881-5373-44c3-a76a-4ae5c7086dd&title=&width=656">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623126972-7d139a8b-b15c-4dcf-ac99-02890f94b609.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=213&id=ud025ece3&originHeight=320&originWidth=1362&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=65789&status=done&style=none&taskId=u3472b48b-d073-44a3-b4ee-71d3dfae070&title=&width=908">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623269721-f322b08f-8cd0-43a7-96d7-adc3932353ff.png#averageHue=%232e2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=487&id=ue4fed19d&originHeight=731&originWidth=1427&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=158487&status=done&style=none&taskId=u3a4106cd-ff55-4f7c-a727-751961be050&title=&width=951.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623545154-befbea2c-78d0-4d24-ade7-66ee99a864b1.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=83&id=u63b293f4&originHeight=125&originWidth=1293&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=28335&status=done&style=none&taskId=uba7fd424-da36-4f58-9c68-39032742808&title=&width=862">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623616673-1737e61a-732b-457a-9a36-24a0fe144ed8.png#averageHue=%232d2b2b&clientId=u6e415c8e-3ad7-4&from=paste&height=51&id=uf5f3ba6e&originHeight=77&originWidth=912&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10264&status=done&style=none&taskId=ud7dfbccf-f8b4-41d0-a0f6-1f8598e562a&title=&width=608">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688693806162-22859945-c266-4fe7-8184-fc8d2bce0f08.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=486&id=u1408dccb&originHeight=729&originWidth=1187&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=111081&status=done&style=none&taskId=u3f5b8439-6766-4f38-ab9b-4305d9c2ed4&title=&width=791.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688693972690-6bfd911f-a70e-43e5-bb7e-ecfa43352e97.png#averageHue=%232e2c2c&clientId=u678182f1-a85b-4&from=paste&height=195&id=u2111032b&originHeight=293&originWidth=1262&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=34998&status=done&style=none&taskId=u575735ad-53a1-4fc9-92ad-420edb8aa26&title=&width=841.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696717151-8c6b1aa9-7649-4429-955b-cfec509dce81.png#averageHue=%232d2b2b&clientId=u678182f1-a85b-4&from=paste&height=452&id=ufcdb1683&originHeight=678&originWidth=1497&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=95834&status=done&style=none&taskId=ufa893127-177f-4776-b213-12b4a2ca9e2&title=&width=998">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696735656-04cfefac-0448-437f-9d8c-2bda166485a8.png#averageHue=%23302e2d&clientId=u678182f1-a85b-4&from=paste&height=81&id=u75535263&originHeight=122&originWidth=1398&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=24726&status=done&style=none&taskId=uc84dc78a-e3ad-45df-bccf-ae0f65edc4c&title=&width=932">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696819847-af358cf8-afe1-406f-97f4-c46ae2250330.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=554&id=uda0710f7&originHeight=831&originWidth=1310&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=126988&status=done&style=none&taskId=uf7999918-ec79-41fe-8205-b1481ea7350&title=&width=873.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696831508-b2e20cfc-be1f-40f5-aa73-9809a70cc5fb.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=143&id=u067dada3&originHeight=214&originWidth=873&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=27371&status=done&style=none&taskId=ua7690bb8-c68b-4fa5-a034-5bcbb6784df&title=&width=582">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696837235-94932c24-d5e8-4090-869b-419ef4200972.png#averageHue=%23302f2d&clientId=u678182f1-a85b-4&from=paste&height=74&id=uad461457&originHeight=111&originWidth=842&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=18838&status=done&style=none&taskId=ud51a2a5c-8a9d-457d-98f6-fd2974b714e&title=&width=561.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697124370-95bf5b0a-743a-4b0a-a535-7078b4d2341f.png#averageHue=%23332d2c&clientId=u678182f1-a85b-4&from=paste&height=156&id=u64c721f2&originHeight=234&originWidth=1253&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=54320&status=done&style=none&taskId=ufa5640b6-5764-4523-a86a-2d660e38464&title=&width=835.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697150155-b1a43512-2b33-4929-87e8-313f786e3ba2.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=205&id=u222daa19&originHeight=307&originWidth=1535&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=65137&status=done&style=none&taskId=ub5f125b9-6340-4b6f-8e2d-add5aea25c8&title=&width=1023.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697282633-a0ea0714-688d-4e02-8868-d63a43268292.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=236&id=u3ceb6632&originHeight=354&originWidth=1182&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=55852&status=done&style=none&taskId=u55a5113e-deea-4a73-a2a0-2eab18672b4&title=&width=788">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697291287-936ad56e-006e-449f-890f-63a0f3108571.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=152&id=u33aa9846&originHeight=228&originWidth=956&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=34636&status=done&style=none&taskId=u23921b91-369b-4af9-ba72-19c96bb95a2&title=&width=637.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697357910-5d5633e2-17ba-4b41-be7a-bdd843a0a827.png#averageHue=%232e2d2b&clientId=u678182f1-a85b-4&from=paste&height=104&id=u934d0f16&originHeight=156&originWidth=1297&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=35923&status=done&style=none&taskId=u00eb7091-2a54-453f-ae2f-ea345b02b26&title=&width=864.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698236406-69b46198-21fa-4ed5-a3e1-20f20ea1967f.png#averageHue=%233f4447&clientId=u678182f1-a85b-4&from=paste&height=227&id=u089a1c4b&originHeight=340&originWidth=1405&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=68051&status=done&style=none&taskId=u6350b2a7-3d0d-4641-812c-0f9a51dacf5&title=&width=936.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698229321-f8142469-c423-44e5-ad21-5dcc38e92d52.png#averageHue=%2333312e&clientId=u678182f1-a85b-4&from=paste&height=47&id=GZqu8&originHeight=71&originWidth=625&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=15096&status=done&style=none&taskId=u85432a84-52cc-41a5-912d-45b56b8e384&title=&width=416.6666666666667">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698305231-ec52971e-ad57-4050-928c-d22e0fa66010.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=98&id=u5df9964d&originHeight=147&originWidth=1005&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=21722&status=done&style=none&taskId=u13b3cd38-bf2d-43d9-90ce-00c9de2a7e7&title=&width=670">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698338431-2ad1641e-5476-4170-9b37-d586e0313149.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=247&id=u6e8a0ef3&originHeight=371&originWidth=1022&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=54242&status=done&style=none&taskId=u7b2907f4-3534-43f2-ac51-0ebb904402d&title=&width=681.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698346165-8de4b988-229b-4309-9c33-fbfaded75161.png#averageHue=%232e2d2c&clientId=u678182f1-a85b-4&from=paste&height=99&id=uddbff3a8&originHeight=149&originWidth=1349&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=28442&status=done&style=none&taskId=ue75225df-c5e2-4256-b24a-3a70e73a3ca&title=&width=899.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698438914-c7f68c96-9186-47fb-b4ac-512c47b12de8.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=270&id=u882b4f49&originHeight=405&originWidth=997&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=47633&status=done&style=none&taskId=ue7f38faf-ed49-4fc4-ae20-c1998769598&title=&width=664.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698453209-79c11990-2dd5-4f9a-9af1-b70a2e45acb8.png#averageHue=%2333312e&clientId=u678182f1-a85b-4&from=paste&height=43&id=uc6a38d6c&originHeight=64&originWidth=1304&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=14443&status=done&style=none&taskId=u22004f30-7373-4ca6-a8c0-b2a2560d8d0&title=&width=869.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698617030-8fee1d0c-868a-417a-a33d-e291705675fb.png#averageHue=%23302e2b&clientId=u678182f1-a85b-4&from=paste&height=29&id=u050ce3fd&originHeight=44&originWidth=1492&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10079&status=done&style=none&taskId=u0097253a-28a1-4fd9-97da-b0432d02059&title=&width=994.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688710261053-e867b1af-90f9-4763-85b6-0edcdc6467a1.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=505&id=uf8d566a2&originHeight=757&originWidth=1243&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=90776&status=done&style=none&taskId=uf341bff5-f518-4783-b269-cbcf12f53e5&title=&width=828.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713362539-6e0ef5fe-6b18-459d-bb4d-c86012591ddc.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=88&id=u69675ebe&originHeight=132&originWidth=853&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=20047&status=done&style=none&taskId=u7ad830c8-c1d2-42df-8e1f-fc1f4613fee&title=&width=568.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713392001-450060c2-2c20-446c-86fd-7f5914e09eee.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=87&id=LhWHK&originHeight=130&originWidth=1381&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=27646&status=done&style=none&taskId=u9aa0c128-24bf-46b4-9bfb-39cef78df35&title=&width=920.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713380399-36e1400a-7b00-47c3-92b6-0bb678a3e0a1.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=131&id=u1aac7932&originHeight=196&originWidth=1335&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=41674&status=done&style=none&taskId=u5bbf48bc-b823-4eda-bff5-2844adc7369&title=&width=890">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713503180-85ba7032-b8ff-400c-a1f9-9e3f6c0daac5.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=367&id=u16d010fc&originHeight=550&originWidth=748&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=62198&status=done&style=none&taskId=uff58be46-40bd-439c-b7a0-d9d83f67085&title=&width=498.6666666666667">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713878562-58abe5eb-0a4d-4d0f-9a87-cffa70ee9559.png#averageHue=%232f2e2d&clientId=u678182f1-a85b-4&from=paste&height=75&id=u3b703c7a&originHeight=112&originWidth=692&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=8293&status=done&style=none&taskId=u888185b9-c756-480f-a696-7cb3e639125&title=&width=461.3333333333333">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713819239-b83a2b75-c8ba-49a4-9da1-57edad6cdc0e.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=241&id=uda26d8a0&originHeight=362&originWidth=984&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=48420&status=done&style=none&taskId=u19c5b0dc-e247-4e0d-8592-fe5576bd65e&title=&width=656">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688714389856-fd7c8451-efca-4688-b30e-bb55648caf75.png#averageHue=%232d2d2c&clientId=u678182f1-a85b-4&from=paste&height=141&id=u92924fa3&originHeight=211&originWidth=1378&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=30844&status=done&style=none&taskId=u1932fe6b-808f-46f3-acb9-357897d2400&title=&width=918.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688714034163-417af584-6510-4021-9f67-620d119bbaaf.png#averageHue=%232b2b2b&clientId=u678182f1-a85b-4&from=paste&height=278&id=u5db6df04&originHeight=417&originWidth=1221&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=45167&status=done&style=none&taskId=ud82cbb36-6a73-441a-8bde-d4e8a133db1&title=&width=814">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688714080010-cf8033b6-8dcb-4ec6-8531-eb15e8775154.png#averageHue=%232b2b2b&clientId=u678182f1-a85b-4&from=paste&height=917&id=u81de8c03&originHeight=1375&originWidth=1381&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=154314&status=done&style=none&taskId=u02a3a624-f72a-4f42-ace5-c933de00c69&title=&width=920.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715090879-57966fc9-3bdd-4358-bbd0-00d006773cfe.png#averageHue=%233d4247&clientId=u678182f1-a85b-4&from=paste&height=568&id=uf03225a5&originHeight=852&originWidth=1195&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=72267&status=done&style=none&taskId=u6e312272-d5f3-4541-b6c3-b4f11f938f4&title=&width=796.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715367296-bbab785e-e417-4c2f-a26b-901c29d1049d.png#averageHue=%23445063&clientId=u678182f1-a85b-4&from=paste&height=119&id=uccf89628&originHeight=178&originWidth=1222&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=32004&status=done&style=none&taskId=u90ea0e93-5c53-40a9-a634-4085d6dc77f&title=&width=814.6666666666666">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715456405-72bdc526-8cdb-49ab-bace-839a57eac6b5.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=546&id=u38d2df93&originHeight=819&originWidth=1305&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=109574&status=done&style=none&taskId=u9d858939-94b6-49fc-84fb-2467c7d5b1e&title=&width=870">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688717724536-6837bb11-a8db-4407-9f61-bd9331f922e5.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=68&id=u7255d85d&originHeight=102&originWidth=831&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11475&status=done&style=none&taskId=u048160d6-bd0c-4a9d-8c33-759710ed6d4&title=&width=554">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688452367506-ca5c82aa-f015-40c7-8cd3-a096f1ca3474.png?x-oss-process=image/resize,w_1125,limit_0#averageHue=%232f2b2b&from=url&id=r4EW5&originHeight=969&originWidth=1125&originalType=binary&ratio=1.5&rotation=0&showTitle=false&status=done&style=none&title=">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715954166-cf941342-cda3-46c5-852f-8a810c65b82f.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=386&id=uebf4091e&originHeight=579&originWidth=1272&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=82025&status=done&style=none&taskId=ua30d22df-a11e-4101-bc69-e6824de7fcd&title=&width=848">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688716088931-e49f93d9-d68e-4326-b66b-650205f3ef34.png#averageHue=%232d2b2b&clientId=u678182f1-a85b-4&from=paste&height=382&id=u2b2216d1&originHeight=573&originWidth=1283&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=89847&status=done&style=none&taskId=ubedc923c-b702-408e-ad0d-28bd5ec2054&title=&width=855.3333333333334">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688716479705-a3992678-80be-4adb-8ad8-c7e115d07a62.png#averageHue=%232d2b2b&clientId=u678182f1-a85b-4&from=paste&height=1619&id=u753c9e9b&originHeight=2429&originWidth=1419&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=340946&status=done&style=none&taskId=u683091c4-6655-441c-aedf-ba047361450&title=&width=946">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688717652679-1bc6294b-8cff-4a40-b2a1-2d3265c49781.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=74&id=u96ea9d3c&originHeight=111&originWidth=810&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=12546&status=done&style=none&taskId=u6843cb63-fb83-4d6f-949d-bea8d90e894&title=&width=540">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688717802967-8c04a89f-b5e9-4338-8111-81b6b2f0cd8a.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=46&id=uff689390&originHeight=69&originWidth=1191&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=12392&status=done&style=none&taskId=u8bdf20ea-78a5-4d46-affc-1912541d1a4&title=&width=794">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/jpeg/22451783/1688718137961-e79e7b72-4099-4e62-8887-1e0ae52f1625.jpeg">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715640365-e494f4c5-6939-4228-9cd2-62f93b7c41eb.png#averageHue=%23312f2d&clientId=u678182f1-a85b-4&from=paste&height=84&id=ZujgC&originHeight=126&originWidth=729&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=19855&status=done&style=none&taskId=ub7bca0c2-5aee-479e-8826-e8bdc160043&title=&width=486">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715651831-e2b11698-4118-4ed5-8d46-29a900713640.png#averageHue=%232f2d2c&clientId=u678182f1-a85b-4&from=paste&height=46&id=VlPuZ&originHeight=69&originWidth=1296&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11953&status=done&style=none&taskId=u4488131e-dbaa-4aab-9d80-30986ca6423&title=&width=864">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715683037-3c9ed45f-0a3d-467c-89ef-6a37171e2059.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=215&id=u02d44123&originHeight=323&originWidth=1414&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=48185&status=done&style=none&taskId=u8d22beac-7786-4adc-ae51-b1d1b1b1754&title=&width=942.6666666666666">
+<meta property="article:published_time" content="2023-07-07T09:29:10.792Z">
+<meta property="article:modified_time" content="2023-07-07T09:30:00.860Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="nacos">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688607280706-fd929027-f588-4e74-a9cd-06b6837d5a10.png#averageHue=%23fdfefc&clientId=ucc0d7059-2728-4&from=paste&height=333&id=uc77adc6b&originHeight=499&originWidth=1114&originalType=binary&ratio=1.5&rotation=0&showTitle=true&size=241973&status=done&style=none&taskId=u84ce4b08-0561-4cda-bd9e-60d3185f746&title=nacos%E6%9E%B6%E6%9E%84%E5%9B%BE&width=742.6666666666666">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://example.com/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="SugarGood" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body class="main-center theme-blue" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/sugarGood" target="_blank">
+          <img class="img-circle img-rotate" src="/images/a.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">theo</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Think &amp; Practice</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> ChongQing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="/links">
+            
+            <i class="icon icon-friendship"></i>
+            
+            <span class="menu-title">友链</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/sugarGood" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%BA%90%E7%A0%81/">源码</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      <!---->
+<!--  <div class="widget">-->
+<!--    <h3 class="widget-title">标签云</h3>-->
+<!--    <div class="widget-body tagcloud">-->
+<!--      <a href="/tags/hello/" style="font-size: 13px;">hello</a> <a href="/tags/mysql/" style="font-size: 13px;">mysql</a> <a href="/tags/nacos/" style="font-size: 13px;">nacos</a> <a href="/tags/%E5%B9%B6%E5%8F%91/" style="font-size: 13px;">并发</a>-->
+<!--    </div>-->
+<!--  </div>-->
+<!---->
+
+
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/hello/" style="font-size: 13px; color: #e48b3a">hello</a> <a href="/tags/%E5%B9%B6%E5%8F%91/" style="font-size: 13px; color: #e48b3a">并发</a> <a href="/tags/mysql/" style="font-size: 13px; color: #e48b3a">mysql</a> <a href="/tags/nacos/" style="font-size: 13px; color: #e48b3a">nacos</a>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%BA%90%E7%A0%81/">源码</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" class="title">浅析nacos源码一 服务注册</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-07-07T09:29:10.792Z" itemprop="datePublished">2023-07-07</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/06/09/Java%E5%B9%B6%E5%8F%91/" class="title">Java并发</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-06-09T06:04:22.420Z" itemprop="datePublished">2023-06-09</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/05/12/Mysql/" class="title">Mysql</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-05-12T02:22:13.322Z" itemprop="datePublished">2023-05-12</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2023/05/10/hello-world/" class="title">Hello World</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2023-05-10T14:16:41.007Z" itemprop="datePublished">2023-05-10</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#nacos%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">nacos基本架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C"><span class="toc-number">2.</span> <span class="toc-text">服务注册</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Registration"><span class="toc-number">2.1.</span> <span class="toc-text">Registration</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ServiceRegistry"><span class="toc-number">2.2.</span> <span class="toc-text">ServiceRegistry</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AutoServiceRegistration"><span class="toc-number">2.3.</span> <span class="toc-text">AutoServiceRegistration</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#start"><span class="toc-number">2.3.1.</span> <span class="toc-text">start()</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#register"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">register()</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#registerInstance"><span class="toc-number">2.3.1.1.1.</span> <span class="toc-text">registerInstance()</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#NamingService"><span class="toc-number">2.3.1.1.1.1.</span> <span class="toc-text">NamingService</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#NacosServiceManager"><span class="toc-number">2.3.1.1.1.2.</span> <span class="toc-text">NacosServiceManager</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#NamingProxy"><span class="toc-number">2.3.1.1.1.3.</span> <span class="toc-text">NamingProxy</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#registerService"><span class="toc-number">2.3.1.1.1.4.</span> <span class="toc-text">registerService</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x2F-instance%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.4.</span> <span class="toc-text">&#x2F;instance接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ServiceManager"><span class="toc-number">2.4.1.</span> <span class="toc-text">ServiceManager.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#registerInstance-1"><span class="toc-number">2.4.2.</span> <span class="toc-text">registerInstance()</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#createEmptyService%E6%96%B9%E6%B3%95"><span class="toc-number">2.4.2.1.</span> <span class="toc-text">createEmptyService方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#putServiceAndInit"><span class="toc-number">2.4.2.2.</span> <span class="toc-text">putServiceAndInit</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Ephemeral%E5%92%8CPersistent"><span class="toc-number">2.4.2.2.1.</span> <span class="toc-text">Ephemeral和Persistent</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#listen"><span class="toc-number">2.4.2.2.2.</span> <span class="toc-text">listen()</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#addInstance"><span class="toc-number">2.4.2.3.</span> <span class="toc-text">addInstance()</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#put"><span class="toc-number">2.4.2.3.1.</span> <span class="toc-text">put()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#onput"><span class="toc-number">2.4.2.3.2.</span> <span class="toc-text">onput()</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#DataStore"><span class="toc-number">2.4.2.3.2.1.</span> <span class="toc-text">DataStore</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Notifier-addTask"><span class="toc-number">2.4.2.3.2.2.</span> <span class="toc-text">Notifier.addTask()</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Notifier-run"><span class="toc-number">2.4.3.</span> <span class="toc-text">Notifier.run()</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#handle"><span class="toc-number">2.4.3.1.</span> <span class="toc-text">handle()</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Service-onChange"><span class="toc-number">2.4.3.1.1.</span> <span class="toc-text">Service.onChange()</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#updateIPs"><span class="toc-number">2.4.3.1.1.1.</span> <span class="toc-text">updateIPs()</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Cluster-updateIps"><span class="toc-number">2.4.3.1.1.2.</span> <span class="toc-text">Cluster.updateIps()</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#serviceChanged"><span class="toc-number">2.4.3.1.1.3.</span> <span class="toc-text">serviceChanged()</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-浅析nacos源码一 服务注册" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      浅析nacos源码一 服务注册
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" class="article-date">
+	  <time datetime="2023-07-07T09:29:10.792Z" itemprop="datePublished">2023-07-07</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E6%BA%90%E7%A0%81/">源码</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/nacos/" rel="tag">nacos</a>
+  </span>
+
+
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数: 2.4k
+<!-- 		(字) -->
+		</span>
+	
+	
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/#comments" class="article-comment-link">评论</a>
+            <span class="valine-comment-count" data-xid="/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/"></span>条
+        </span>
+
+        
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" class="leancloud_visitors"  data-flag-title="浅析nacos源码一 服务注册">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>源码浅析第一篇 从nacos开始！</p>
+<h1 id="nacos基本架构"><a href="#nacos基本架构" class="headerlink" title="nacos基本架构"></a>nacos基本架构</h1><p>Nacos（全称为 “Naming and Configuration Service”）是一个开源的分布式配置和服务发现平台，由阿里巴巴开源社区开发和维护。它提供了服务注册、发现和配置管理等功能，使得构建和管理微服务架构变得更加便捷。<br>看一下官网给的架构图 和 一些基本概念<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688607280706-fd929027-f588-4e74-a9cd-06b6837d5a10.png#averageHue=%23fdfefc&clientId=ucc0d7059-2728-4&from=paste&height=333&id=uc77adc6b&originHeight=499&originWidth=1114&originalType=binary&ratio=1.5&rotation=0&showTitle=true&size=241973&status=done&style=none&taskId=u84ce4b08-0561-4cda-bd9e-60d3185f746&title=nacos%E6%9E%B6%E6%9E%84%E5%9B%BE&width=742.6666666666666" alt="nacos架构图" title="nacos架构图"><br><strong>服务注册中心 (Service Registry)</strong><br>服务注册中心，它是服务，其实例及元数据的数据库。服务实例在启动时注册到<strong>服务注册表</strong>，并在关闭时注销。服务和路由器的客户端查询服务注册表以查找服务的可用实例。服务注册中心可能会调用服务实例的健康检查 API 来验证它是否能够处理请求。<br><strong>注册表结构</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688610412059-4aceb24c-4497-4746-bc46-e2d1a45501d3.png#averageHue=%23cdecc8&clientId=u6e415c8e-3ad7-4&from=paste&height=430&id=aSvTh&originHeight=645&originWidth=989&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=179987&status=done&style=none&taskId=u9e8e761a-f54a-4fc9-9b1f-edf4556b314&title=&width=659.3333333333334" alt="image.png"><br><strong>服务元数据 (Service Metadata)</strong><br>服务元数据是指包括服务端点(endpoints)、服务标签、服务版本号、服务实例权重、路由规则、安全策略等描述服务的数据。<br><strong>服务提供方 (Service Provider)</strong><br>是指提供可复用和可调用服务的应用方。<br><strong>服务消费方 (Service Consumer)</strong><br>是指会发起对某个服务调用的应用方。</p>
+<h1 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h1><p>Springcloud提供了一套服务自动注册的机制，其实就是三个接口，市面上的注册中心都会实现这三个接口</p>
+<h2 id="Registration"><a href="#Registration" class="headerlink" title="Registration"></a>Registration</h2><p><strong>服务实例数据封装</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688611993338-e0f520b3-1823-4ea9-a146-b71c690a8b1b.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=69&id=u9555b171&originHeight=103&originWidth=808&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=9057&status=done&style=none&taskId=uc6dd6656-d30c-452f-806e-4fa4f8a6e25&title=&width=538.6666666666666" alt="image.png"><br>可以看到服务实例一般包含以下一些属性<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612022928-77ec25f9-a649-4f72-859c-fd1168640fdf.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=741&id=uf0bd1382&originHeight=1111&originWidth=661&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=78870&status=done&style=none&taskId=u59439627-2aab-4e14-80d1-1011dd25195&title=&width=440.6666666666667" alt="image.png"><br><strong>nacos中的实现 NacosRegistration</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622277713-f0cd4727-cfb4-463f-b743-507bf39589c4.png#averageHue=%23312f2e&clientId=u6e415c8e-3ad7-4&from=paste&height=49&id=u64a6e309&originHeight=73&originWidth=943&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10811&status=done&style=none&taskId=u73616782-30d0-4d9b-b5f6-36926b40a1c&title=&width=628.6666666666666" alt="image.png"></p>
+<h2 id="ServiceRegistry"><a href="#ServiceRegistry" class="headerlink" title="ServiceRegistry"></a>ServiceRegistry</h2><p><strong>这个接口包含了服务注册相关的一些方法，服务实例都是通过register方法注册到注册中心的。</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688613019521-b67aba19-27e2-46d5-ada0-0d8f1f609dbb.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=729&id=uc49bc7c5&originHeight=1094&originWidth=997&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=107119&status=done&style=none&taskId=ufb4c484c-7dc5-4e76-8136-2a0405e8caa&title=&width=664.6666666666666" alt="image.png"></p>
+<p><strong>nacos中的实现</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612520525-f00305b2-9140-4f66-af6f-dc2f09d482d1.png#averageHue=%23302f2d&clientId=u6e415c8e-3ad7-4&from=paste&height=55&id=udc5e4c2f&originHeight=82&originWidth=1012&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11726&status=done&style=none&taskId=u67597ffc-6a40-43d8-8fc7-06a27e40594&title=&width=674.6666666666666" alt="image.png"></p>
+<h2 id="AutoServiceRegistration"><a href="#AutoServiceRegistration" class="headerlink" title="AutoServiceRegistration"></a>AutoServiceRegistration</h2><p><strong>服务自动注册的入口</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612621492-f0af9c72-de3b-40bf-af7a-54d8f2447b8f.png#averageHue=%232e2d2c&clientId=u6e415c8e-3ad7-4&from=paste&height=89&id=u54612ea8&originHeight=133&originWidth=584&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=8091&status=done&style=none&taskId=ucfdfa7b2-2e28-4bac-b58e-2a50a07fef4&title=&width=389.3333333333333" alt="image.png"><br>看他的一个抽象实现:<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612656355-2a5ab86b-4f87-444e-8749-4e7495cb7aa2.png#averageHue=%23302e2d&clientId=u6e415c8e-3ad7-4&from=paste&height=105&id=u4fb9c927&originHeight=158&originWidth=1045&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=32553&status=done&style=none&taskId=ube9fb3d0-a935-4c77-9a20-d58b041c196&title=&width=696.6666666666666" alt="image.png"><br>监听了<strong>WebServerInitializedEvent</strong>事件。<br>WebServerInitializedEvent这个事件是SpringBoot在项目启动时，当诸如tomcat这类Web服务启动之后就会发布。所以服务实例在启动的时候就会监听到这个事件，然后进行服务注册。</p>
+<p>**AbstractAutoServiceRegistration类中 bind方法就是监听了这个事件 **<br><strong>因此当服务启动的时候 便会自动注册当注册中心</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612751468-78b82d62-db5a-462b-bfbf-a1f95891f88e.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=271&id=u7adc3bb9&originHeight=406&originWidth=1012&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=57693&status=done&style=none&taskId=u5fead1d6-2fdd-4c0a-87e3-9610235b5f5&title=&width=674.6666666666666" alt="image.png"></p>
+<h3 id="start"><a href="#start" class="headerlink" title="start()"></a>start()</h3><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612924028-a7f16a55-36d4-40c1-991a-3708b42a4797.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=511&id=ub25079d4&originHeight=766&originWidth=1113&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=97728&status=done&style=none&taskId=u9ca2274a-602f-413e-b3bf-bf57e632758&title=&width=742" alt="image.png"></p>
+<h4 id="register"><a href="#register" class="headerlink" title="register()"></a>register()</h4><p>注册的内容便是前面说的<strong>NacosRegistration</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688612965552-739a6159-9866-4d5d-a76d-5c3f225d43d0.png#averageHue=%23302f2d&clientId=u6e415c8e-3ad7-4&from=paste&height=75&id=u2394750c&originHeight=113&originWidth=736&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=13692&status=done&style=none&taskId=u47c7a979-d813-4887-9043-c721a256a93&title=&width=490.6666666666667" alt="image.png"><br>而serviceRegistry就是上面提到的<strong>NacosServiceRegistry</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688613236285-210fb22f-b1f3-42d5-ab07-350443fd0371.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=607&id=uaf9c523a&originHeight=910&originWidth=1158&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=114115&status=done&style=none&taskId=u3e15022c-db11-4064-8b3e-18b7f245019&title=&width=772" alt="image.png"><br><strong>Registration会转换成Instance</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697818159-daa55f80-7988-496e-9766-79387b753af3.png#averageHue=%232e2d2c&clientId=u678182f1-a85b-4&from=paste&height=249&id=u8b4960dd&originHeight=373&originWidth=1000&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=69417&status=done&style=none&taskId=ud4fd3b3b-22c8-4b42-9d45-2dcbcfb5e9d&title=&width=666.6666666666666" alt="image.png"><br>有一些参数是来自于nacosDiscoveryProperties  就可以通过nacos的配置去修改 例如<strong>Ephemeral</strong><br><code>这里后面会用到 其默认值是true</code></p>
+<h5 id="registerInstance"><a href="#registerInstance" class="headerlink" title="registerInstance()"></a>registerInstance()</h5><p>registerInstance(serviceId, group, instance) 服务注册到注册中心的核心方法<br><strong>先补充一个自动配置类NacosServiceRegistryAutoConfiguration  将上面说的三个类加载到了spring容器中</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688613702905-f5aeb389-9750-4024-9088-15dc86513e66.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=795&id=ud4881986&originHeight=1192&originWidth=1137&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=188836&status=done&style=none&taskId=u05091cf3-23a8-4768-b6b5-e30aff038de&title=&width=758" alt="image.png"></p>
+<h6 id="NamingService"><a href="#NamingService" class="headerlink" title="NamingService"></a>NamingService</h6><p>先看一下他的调用者NamingService<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622531216-762a0650-20c1-4821-8a46-bf7012e857eb.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=38&id=bXDqa&originHeight=57&originWidth=750&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=6856&status=done&style=none&taskId=u7ceb4d1a-f813-4a04-8a7d-d4141fa94a0&title=&width=500" alt="image.png"><br>NamingService里面有很多实例相关的方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688622613862-91a7a40d-35d4-497d-a129-0c9a57fbbed3.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=100&id=n53Iq&originHeight=150&originWidth=984&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=23923&status=done&style=none&taskId=u6629a881-5373-44c3-a76a-4ae5c7086dd&title=&width=656" alt="image.png"></p>
+<h6 id="NacosServiceManager"><a href="#NacosServiceManager" class="headerlink" title="NacosServiceManager"></a>NacosServiceManager</h6><p>而NamingService通过NacosServiceManager创建<br>NacosServiceManager 中有两个重要的service <strong>NamingService ** 和 <strong>NamingMaintainService ** 和一个</strong>NacosDiscoveryProperties</strong></p>
+<p>回到registerInstance()<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623126972-7d139a8b-b15c-4dcf-ac99-02890f94b609.png#averageHue=%232d2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=213&id=ud025ece3&originHeight=320&originWidth=1362&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=65789&status=done&style=none&taskId=u3472b48b-d073-44a3-b4ee-71d3dfae070&title=&width=908" alt="image.png"><br>serverProxy就是NamingProxy</p>
+<h6 id="NamingProxy"><a href="#NamingProxy" class="headerlink" title="NamingProxy"></a>NamingProxy</h6><p><strong>NamingProxy是用于处理服务注册、发现和订阅等操作的代理类。它负责与Nacos Server进行通信，并执行服务注册、发现和订阅等操作的网络请求。</strong><br>所以这里会向注册中心发起一个注册请求</p>
+<h6 id="registerService"><a href="#registerService" class="headerlink" title="registerService"></a>registerService</h6><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623269721-f322b08f-8cd0-43a7-96d7-adc3932353ff.png#averageHue=%232e2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=487&id=ue4fed19d&originHeight=731&originWidth=1427&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=158487&status=done&style=none&taskId=u3a4106cd-ff55-4f7c-a727-751961be050&title=&width=951.3333333333334" alt="image.png"><br>前面是组装请求参数。<br>reqApi里面有个callserver方法  向nacos服务器发起了一个post请求 地址是<strong>nacosUrlInstance</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623545154-befbea2c-78d0-4d24-ade7-66ee99a864b1.png#averageHue=%232c2c2b&clientId=u6e415c8e-3ad7-4&from=paste&height=83&id=u63b293f4&originHeight=125&originWidth=1293&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=28335&status=done&style=none&taskId=uba7fd424-da36-4f58-9c68-39032742808&title=&width=862" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688623616673-1737e61a-732b-457a-9a36-24a0fe144ed8.png#averageHue=%232d2b2b&clientId=u6e415c8e-3ad7-4&from=paste&height=51&id=uf5f3ba6e&originHeight=77&originWidth=912&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10264&status=done&style=none&taskId=ud7dfbccf-f8b4-41d0-a0f6-1f8598e562a&title=&width=608" alt="image.png"></p>
+<p>发起请求之后 就是nacos服务端的事情了 可以通过下面地址下载源码 文章使用的是1.4版本<br><code>nacos源码地址 https://github.com/alibaba/nacos</code></p>
+<p>nacos服务端对外开发了很多API接口 文档地址如下<br><code>地址:[https://nacos.io/zh-cn/docs/v2/guide/user/open-api.html](https://nacos.io/zh-cn/docs/v2/guide/user/open-api.html)</code></p>
+<h2 id="x2F-instance接口"><a href="#x2F-instance接口" class="headerlink" title="&#x2F;instance接口"></a>&#x2F;instance接口</h2><p>InstanceController里面都是nacos对外提供的API地址<br>我们在其中找到这个instance接口<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688693806162-22859945-c266-4fe7-8184-fc8d2bce0f08.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=486&id=u1408dccb&originHeight=729&originWidth=1187&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=111081&status=done&style=none&taskId=u3f5b8439-6766-4f38-ab9b-4305d9c2ed4&title=&width=791.3333333333334" alt="image.png"></p>
+<h3 id="ServiceManager"><a href="#ServiceManager" class="headerlink" title="ServiceManager."></a>ServiceManager.</h3><p>ServiceManager就是Nacos中管理服务、实例信息的核心API，其中就包含Nacos的服务注册表<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688693972690-6bfd911f-a70e-43e5-bb7e-ecfa43352e97.png#averageHue=%232e2c2c&clientId=u678182f1-a85b-4&from=paste&height=195&id=u2111032b&originHeight=293&originWidth=1262&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=34998&status=done&style=none&taskId=u575735ad-53a1-4fc9-92ad-420edb8aa26&title=&width=841.3333333333334" alt="image.png"></p>
+<h3 id="registerInstance-1"><a href="#registerInstance-1" class="headerlink" title="registerInstance()"></a>registerInstance()</h3><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696717151-8c6b1aa9-7649-4429-955b-cfec509dce81.png#averageHue=%232d2b2b&clientId=u678182f1-a85b-4&from=paste&height=452&id=ufcdb1683&originHeight=678&originWidth=1497&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=95834&status=done&style=none&taskId=ufa893127-177f-4776-b213-12b4a2ca9e2&title=&width=998" alt="image.png"></p>
+<h4 id="createEmptyService方法"><a href="#createEmptyService方法" class="headerlink" title="createEmptyService方法"></a>createEmptyService方法</h4><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696735656-04cfefac-0448-437f-9d8c-2bda166485a8.png#averageHue=%23302e2d&clientId=u678182f1-a85b-4&from=paste&height=81&id=u75535263&originHeight=122&originWidth=1398&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=24726&status=done&style=none&taskId=uc84dc78a-e3ad-45df-bccf-ae0f65edc4c&title=&width=932" alt="image.png"><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696819847-af358cf8-afe1-406f-97f4-c46ae2250330.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=554&id=uda0710f7&originHeight=831&originWidth=1310&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=126988&status=done&style=none&taskId=uf7999918-ec79-41fe-8205-b1481ea7350&title=&width=873.3333333333334" alt="image.png"><br>createServiceIfAbsent初始了一个service 设置了namespaceId这些基本参数。<br>看getService方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696831508-b2e20cfc-be1f-40f5-aa73-9809a70cc5fb.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=143&id=u067dada3&originHeight=214&originWidth=873&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=27371&status=done&style=none&taskId=ua7690bb8-c68b-4fa5-a034-5bcbb6784df&title=&width=582" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688696837235-94932c24-d5e8-4090-869b-419ef4200972.png#averageHue=%23302f2d&clientId=u678182f1-a85b-4&from=paste&height=74&id=uad461457&originHeight=111&originWidth=842&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=18838&status=done&style=none&taskId=ud51a2a5c-8a9d-457d-98f6-fd2974b714e&title=&width=561.3333333333334" alt="image.png"><br>这里就能看出来 服务实例都是存到serviceMap中的  key为namespaceId  value是一个以ServiceName为key 具体服务实例为value的map  可以回去看在客户端调用那里  serviceName其实是 <code>GroupName@@ServiceName</code><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697124370-95bf5b0a-743a-4b0a-a535-7078b4d2341f.png#averageHue=%23332d2c&clientId=u678182f1-a85b-4&from=paste&height=156&id=u64c721f2&originHeight=234&originWidth=1253&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=54320&status=done&style=none&taskId=ufa5640b6-5764-4523-a86a-2d660e38464&title=&width=835.3333333333334" alt="image.png"></p>
+<h4 id="putServiceAndInit"><a href="#putServiceAndInit" class="headerlink" title="putServiceAndInit"></a>putServiceAndInit</h4><p>再看putServiceAndInit方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697150155-b1a43512-2b33-4929-87e8-313f786e3ba2.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=205&id=u222daa19&originHeight=307&originWidth=1535&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=65137&status=done&style=none&taskId=ub5f125b9-6340-4b6f-8e2d-add5aea25c8&title=&width=1023.3333333333334" alt="image.png"><br>putService就是讲初始化好的service放到map中<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697282633-a0ea0714-688d-4e02-8868-d63a43268292.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=236&id=u3ceb6632&originHeight=354&originWidth=1182&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=55852&status=done&style=none&taskId=u55a5113e-deea-4a73-a2a0-2eab18672b4&title=&width=788" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697291287-936ad56e-006e-449f-890f-63a0f3108571.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=152&id=u33aa9846&originHeight=228&originWidth=956&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=34636&status=done&style=none&taskId=u23921b91-369b-4af9-ba72-19c96bb95a2&title=&width=637.3333333333334" alt="image.png"><br>init方法有点像是初始化健康检查  后面再看<br>先注意看后面两个listen方法  他们只有ephemeral不一样<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688697357910-5d5633e2-17ba-4b41-be7a-bdd843a0a827.png#averageHue=%232e2d2b&clientId=u678182f1-a85b-4&from=paste&height=104&id=u934d0f16&originHeight=156&originWidth=1297&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=35923&status=done&style=none&taskId=u00eb7091-2a54-453f-ae2f-ea345b02b26&title=&width=864.6666666666666" alt="image.png"><br>一个是Ephemeral  一个是Persistent</p>
+<h5 id="Ephemeral和Persistent"><a href="#Ephemeral和Persistent" class="headerlink" title="Ephemeral和Persistent"></a>Ephemeral和Persistent</h5><ul>
+<li>Persistent（持久化）：当服务实例以持久化方式注册到Nacos注册中心时，它的注册信息将会被持久存储。即使服务实例下线或重启，注册信息仍然会保留在注册中心中，直到显式注销。持久化注册适用于需要长期存在且稳定的服务实例，例如基础设施组件或长时间运行的服务。</li>
+<li>Ephemeral（临时）：当服务实例以临时方式注册到Nacos注册中心时，它的注册信息将会与服务实例的生命周期绑定。一旦服务实例下线或重启，注册信息会被自动删除。临时注册适用于短期存在或频繁变化的服务实例，例如临时任务或动态扩缩容的实例。</li>
+</ul>
+<p><strong>前面客户端那边可以看到Ephemeral 是一个配置 可以根据你的要求通过修改配置文件来设置是持久还是临时节点 默认是临时节点</strong></p>
+<p>再看调用的service 这个service有很多实现类<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698236406-69b46198-21fa-4ed5-a3e1-20f20ea1967f.png#averageHue=%233f4447&clientId=u678182f1-a85b-4&from=paste&height=227&id=u089a1c4b&originHeight=340&originWidth=1405&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=68051&status=done&style=none&taskId=u6350b2a7-3d0d-4641-812c-0f9a51dacf5&title=&width=936.6666666666666" alt="image.png"><br>找到注入的地方 是用的consistencyDelegate<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698229321-f8142469-c423-44e5-ad21-5dcc38e92d52.png#averageHue=%2333312e&clientId=u678182f1-a85b-4&from=paste&height=47&id=GZqu8&originHeight=71&originWidth=625&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=15096&status=done&style=none&taskId=u85432a84-52cc-41a5-912d-45b56b8e384&title=&width=416.6666666666667" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698305231-ec52971e-ad57-4050-928c-d22e0fa66010.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=98&id=u5df9964d&originHeight=147&originWidth=1005&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=21722&status=done&style=none&taskId=u13b3cd38-bf2d-43d9-90ce-00c9de2a7e7&title=&width=670" alt="image.png"><br>后面也有类似的这种 就省略这个流程。</p>
+<h5 id="listen"><a href="#listen" class="headerlink" title="listen()"></a>listen()</h5><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698338431-2ad1641e-5476-4170-9b37-d586e0313149.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=247&id=u6e8a0ef3&originHeight=371&originWidth=1022&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=54242&status=done&style=none&taskId=u7b2907f4-3534-43f2-ac51-0ebb904402d&title=&width=681.3333333333334" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698346165-8de4b988-229b-4309-9c33-fbfaded75161.png#averageHue=%232e2d2c&clientId=u678182f1-a85b-4&from=paste&height=99&id=uddbff3a8&originHeight=149&originWidth=1349&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=28442&status=done&style=none&taskId=ue75225df-c5e2-4256-b24a-3a70e73a3ca&title=&width=899.3333333333334" alt="image.png"><br>判断是持久节点还是临时节点  由此看出来两个listen分别监听了持久和临时节点。<br>listen方法就是往listeners	添加了一个RecordListener<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698438914-c7f68c96-9186-47fb-b4ac-512c47b12de8.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=270&id=u882b4f49&originHeight=405&originWidth=997&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=47633&status=done&style=none&taskId=ue7f38faf-ed49-4fc4-ae20-c1998769598&title=&width=664.6666666666666" alt="image.png"><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698453209-79c11990-2dd5-4f9a-9af1-b70a2e45acb8.png#averageHue=%2333312e&clientId=u678182f1-a85b-4&from=paste&height=43&id=uc6a38d6c&originHeight=64&originWidth=1304&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=14443&status=done&style=none&taskId=u22004f30-7373-4ca6-a8c0-b2a2560d8d0&title=&width=869.3333333333334" alt="image.png">但是前面看到 传进来的参数一直是一个service 怎么这里变成RecordListener 因为service是RecordListener的一个实现类<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688698617030-8fee1d0c-868a-417a-a33d-e291705675fb.png#averageHue=%23302e2b&clientId=u678182f1-a85b-4&from=paste&height=29&id=u050ce3fd&originHeight=44&originWidth=1492&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=10079&status=done&style=none&taskId=u0097253a-28a1-4fd9-97da-b0432d02059&title=&width=994.6666666666666" alt="image.png"><br>这里后续肯定会有地方 从这个map中取listener出来执行  实现一个监听的机制。</p>
+<h4 id="addInstance"><a href="#addInstance" class="headerlink" title="addInstance()"></a>addInstance()</h4><p>addIpAddresses()返回的是当前服务对应的所有实例列表。<br>实际情况一个服务一般都会有多个实例，他们的namespaceId、groupName、serviceName 都是相同的 因此如果当多实例同时注册的时候 需要一个并发控制。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688710261053-e867b1af-90f9-4763-85b6-0edcdc6467a1.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=505&id=uf8d566a2&originHeight=757&originWidth=1243&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=90776&status=done&style=none&taskId=uf341bff5-f518-4783-b269-cbcf12f53e5&title=&width=828.6666666666666" alt="image.png"></p>
+<h5 id="put"><a href="#put" class="headerlink" title="put()"></a>put()</h5><p>DelegateConsistencyServiceImpl类下<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713362539-6e0ef5fe-6b18-459d-bb4d-c86012591ddc.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=88&id=u69675ebe&originHeight=132&originWidth=853&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=20047&status=done&style=none&taskId=u7ad830c8-c1d2-42df-8e1f-fc1f4613fee&title=&width=568.6666666666666" alt="image.png"><br>我们看临时节点的流程  下面是EphemeralConsistencyService的一个实现类<br>DistroConsistencyServiceImpl<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713392001-450060c2-2c20-446c-86fd-7f5914e09eee.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=87&id=LhWHK&originHeight=130&originWidth=1381&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=27646&status=done&style=none&taskId=u9aa0c128-24bf-46b4-9bfb-39cef78df35&title=&width=920.6666666666666" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713380399-36e1400a-7b00-47c3-92b6-0bb678a3e0a1.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=131&id=u1aac7932&originHeight=196&originWidth=1335&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=41674&status=done&style=none&taskId=u5bbf48bc-b823-4eda-bff5-2844adc7369&title=&width=890" alt="image.png"></p>
+<h5 id="onput"><a href="#onput" class="headerlink" title="onput()"></a>onput()</h5><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713503180-85ba7032-b8ff-400c-a1f9-9e3f6c0daac5.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=367&id=u16d010fc&originHeight=550&originWidth=748&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=62198&status=done&style=none&taskId=uff58be46-40bd-439c-b7a0-d9d83f67085&title=&width=498.6666666666667" alt="image.png"><br>前面是将当前实例数据存到dataStore中  再次注意 这里的value是服务的一个实例列表 可能是多个实例</p>
+<h6 id="DataStore"><a href="#DataStore" class="headerlink" title="DataStore"></a>DataStore</h6><p>存储了服务实例的一些数据</p>
+<h6 id="Notifier-addTask"><a href="#Notifier-addTask" class="headerlink" title="Notifier.addTask()"></a>Notifier.addTask()</h6><p>Notifier是当前DistroConsistencyServiceImpl的一个内部类<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713878562-58abe5eb-0a4d-4d0f-9a87-cffa70ee9559.png#averageHue=%232f2e2d&clientId=u678182f1-a85b-4&from=paste&height=75&id=u3b703c7a&originHeight=112&originWidth=692&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=8293&status=done&style=none&taskId=u888185b9-c756-480f-a696-7cb3e639125&title=&width=461.3333333333333" alt="image.png"><br><strong>action是change key是namespace+serviceName</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688713819239-b83a2b75-c8ba-49a4-9da1-57edad6cdc0e.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=241&id=uda26d8a0&originHeight=362&originWidth=984&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=48420&status=done&style=none&taskId=u19c5b0dc-e247-4e0d-8592-fe5576bd65e&title=&width=656" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688714389856-fd7c8451-efca-4688-b30e-bb55648caf75.png#averageHue=%232d2d2c&clientId=u678182f1-a85b-4&from=paste&height=141&id=u92924fa3&originHeight=211&originWidth=1378&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=30844&status=done&style=none&taskId=u1932fe6b-808f-46f3-acb9-357897d2400&title=&width=918.6666666666666" alt="image.png"><br>tasks是一个阻塞队列  而services的作用就是当action是change的时候 放进Map  可能是为了一个并发控制？用意不明。</p>
+<p>后续是将当前实例对应的一个key和对应的操作封装成一个pair放到tasks阻塞队列中<br>到此registerInstance方法就走完了<br>当然  看到阻塞队列 就会想到 肯定有一处代码是从阻塞队列中取出任务来执行，Notifier又是一个runnable<br>我们直接看他的run方法</p>
+<h3 id="Notifier-run"><a href="#Notifier-run" class="headerlink" title="Notifier.run()"></a>Notifier.run()</h3><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688714034163-417af584-6510-4021-9f67-620d119bbaaf.png#averageHue=%232b2b2b&clientId=u678182f1-a85b-4&from=paste&height=278&id=u5db6df04&originHeight=417&originWidth=1221&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=45167&status=done&style=none&taskId=ud82cbb36-6a73-441a-8bde-d4e8a133db1&title=&width=814" alt="image.png"><br>这里就是从阻塞队列取出一个pair</p>
+<h4 id="handle"><a href="#handle" class="headerlink" title="handle()"></a>handle()</h4><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688714080010-cf8033b6-8dcb-4ec6-8531-eb15e8775154.png#averageHue=%232b2b2b&clientId=u678182f1-a85b-4&from=paste&height=917&id=u81de8c03&originHeight=1375&originWidth=1381&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=154314&status=done&style=none&taskId=u02a3a624-f72a-4f42-ace5-c933de00c69&title=&width=920.6666666666666" alt="image.png"><br>这里services移除key  看起来就是保证change行为 高并发的时候只执行一次。<br>然后自然是进入change这个分支  调用onChange方法<br>listeners就是熟面孔了  前面的putServiceAndInit方法就是创建了listener  那时就说了后面有地方会取出来 实现一个监听机制。而dataStore在前面就是存放了实例列表数据。<br>看下dataStore的结果<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715090879-57966fc9-3bdd-4358-bbd0-00d006773cfe.png#averageHue=%233d4247&clientId=u678182f1-a85b-4&from=paste&height=568&id=uf03225a5&originHeight=852&originWidth=1195&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=72267&status=done&style=none&taskId=u6e312272-d5f3-4541-b6c3-b4f11f938f4&title=&width=796.6666666666666" alt="image.png"></p>
+<h5 id="Service-onChange"><a href="#Service-onChange" class="headerlink" title="Service.onChange()"></a>Service.onChange()</h5><p>listener有多个实现<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715367296-bbab785e-e417-4c2f-a26b-901c29d1049d.png#averageHue=%23445063&clientId=u678182f1-a85b-4&from=paste&height=119&id=uccf89628&originHeight=178&originWidth=1222&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=32004&status=done&style=none&taskId=u90ea0e93-5c53-40a9-a634-4085d6dc77f&title=&width=814.6666666666666" alt="image.png"><br>而我们之前在putServiceAndInit方法中 我们是将service作为一个listener放进了map中 所以自然是看service的实现咯<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715456405-72bdc526-8cdb-49ab-bace-839a57eac6b5.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=546&id=u38d2df93&originHeight=819&originWidth=1305&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=109574&status=done&style=none&taskId=u9d858939-94b6-49fc-84fb-2467c7d5b1e&title=&width=870" alt="image.png"><br>先是对实例的权重做一个修正</p>
+<h6 id="updateIPs"><a href="#updateIPs" class="headerlink" title="updateIPs()"></a>updateIPs()</h6><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688717724536-6837bb11-a8db-4407-9f61-bd9331f922e5.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=68&id=u7255d85d&originHeight=102&originWidth=831&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11475&status=done&style=none&taskId=u048160d6-bd0c-4a9d-8c33-759710ed6d4&title=&width=554" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688452367506-ca5c82aa-f015-40c7-8cd3-a096f1ca3474.png?x-oss-process=image/resize,w_1125,limit_0#averageHue=%232f2b2b&from=url&id=r4EW5&originHeight=969&originWidth=1125&originalType=binary&ratio=1.5&rotation=0&showTitle=false&status=done&style=none&title="><br>没截完 还有一段<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715954166-cf941342-cda3-46c5-852f-8a810c65b82f.png#averageHue=%232c2b2b&clientId=u678182f1-a85b-4&from=paste&height=386&id=uebf4091e&originHeight=579&originWidth=1272&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=82025&status=done&style=none&taskId=ua30d22df-a11e-4101-bc69-e6824de7fcd&title=&width=848" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688716088931-e49f93d9-d68e-4326-b66b-650205f3ef34.png#averageHue=%232d2b2b&clientId=u678182f1-a85b-4&from=paste&height=382&id=u2b2216d1&originHeight=573&originWidth=1283&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=89847&status=done&style=none&taskId=ubedc923c-b702-408e-ad0d-28bd5ec2054&title=&width=855.3333333333334" alt="image.png"></p>
+<h6 id="Cluster-updateIps"><a href="#Cluster-updateIps" class="headerlink" title="Cluster.updateIps()"></a>Cluster.updateIps()</h6><p>updateIps是Cluster类下的个方法  Cluster是代表集群的一个实体<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688716479705-a3992678-80be-4adb-8ad8-c7e115d07a62.png#averageHue=%232d2b2b&clientId=u678182f1-a85b-4&from=paste&height=1619&id=u753c9e9b&originHeight=2429&originWidth=1419&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=340946&status=done&style=none&taskId=u683091c4-6655-441c-aedf-ba047361450&title=&width=946" alt="image.png"><br>这里有一个copyonwrite的机制 实现了一定程度上的读写分离  在服务写入的过程中  写操作是操作一个副本，当写操作完成了再将数据更新到原来的数据上 当多个服务发现的请求过来时  写操作不会影响到读操作  实现了对注册表的一个并发读写的功能。并且写的过程是通过阻塞队列 控制一次只执行一个写请求 。(能看到这些操作都是在**Notifier.run()**方法中执行的)<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688717652679-1bc6294b-8cff-4a40-b2a1-2d3265c49781.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=74&id=u96ea9d3c&originHeight=111&originWidth=810&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=12546&status=done&style=none&taskId=u6843cb63-fb83-4d6f-949d-bea8d90e894&title=&width=540" alt="image.png"><br>综上可以看出一个关系链  Service-Cluster-Instance<br>service中有一个Map&lt;String, Cluster&gt; clusterMap  Cluster中有两个Set<Instance> 分别是持久和临时节点</p>
+<p>而我们在接口最初提到了ServiceManager中有一个注册表<br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688717802967-8c04a89f-b5e9-4338-8111-81b6b2f0cd8a.png#averageHue=%232d2c2b&clientId=u678182f1-a85b-4&from=paste&height=46&id=uff689390&originHeight=69&originWidth=1191&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=12392&status=done&style=none&taskId=u8bdf20ea-78a5-4d46-affc-1912541d1a4&title=&width=794" alt="image.png"><br>看到存放的是一个serviceMap<br>由此一个清晰的关系图就浮现出来了 服务注册表的结构也就出来了<br><img src="https://cdn.nlark.com/yuque/0/2023/jpeg/22451783/1688718137961-e79e7b72-4099-4e62-8887-1e0ae52f1625.jpeg"><br>但是其实可以看到 最后并没有将实例数据更新到ServiceMap上  再后面的源码分析中 应该会出现。</p>
+<p>cluster.updateIps方法后面还有一个重要方法<br>getPushService().serviceChanged(this);</p>
+<h6 id="serviceChanged"><a href="#serviceChanged" class="headerlink" title="serviceChanged()"></a>serviceChanged()</h6><p><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715640365-e494f4c5-6939-4228-9cd2-62f93b7c41eb.png#averageHue=%23312f2d&clientId=u678182f1-a85b-4&from=paste&height=84&id=ZujgC&originHeight=126&originWidth=729&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=19855&status=done&style=none&taskId=ub7bca0c2-5aee-479e-8826-e8bdc160043&title=&width=486" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715651831-e2b11698-4118-4ed5-8d46-29a900713640.png#averageHue=%232f2d2c&clientId=u678182f1-a85b-4&from=paste&height=46&id=VlPuZ&originHeight=69&originWidth=1296&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=11953&status=done&style=none&taskId=u4488131e-dbaa-4aab-9d80-30986ca6423&title=&width=864" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/22451783/1688715683037-3c9ed45f-0a3d-467c-89ef-6a37171e2059.png#averageHue=%232c2c2b&clientId=u678182f1-a85b-4&from=paste&height=215&id=u02d44123&originHeight=323&originWidth=1414&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=48185&status=done&style=none&taskId=u8d22beac-7786-4adc-ae51-b1d1b1b1754&title=&width=942.6666666666666" alt="image.png"><br>这里主要就是发布一个ServiceChangeEvent事件<br>到此run方法也结束了  接下来找到监听事件的地方 大概就是在pushservice中  因为看到pushservice实现了 ApplicationListener<ServiceChangeEvent><br>具体的实现 我们后面再看</p>
+<p><strong>以上就是nacos服务注册的一个大致流程了</strong></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://example.com/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="浅析nacos源码一 服务注册" target="_blank" rel="external">http://example.com/2023/07/07/浅析nacos源码一 服务注册/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/sugarGood" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/a.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/sugarGood" target="_blank"><span class="text-dark">theo</span><small class="ml-1x">Think &amp; Practice</small></a></h3>
+        <div>一个大帅比。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2023/06/09/Java%E5%B9%B6%E5%8F%91/" title="Java并发"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/sugarGood" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/cofess" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/iwebued" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+        <li><a href="https://www.behance.net/cofess" target="_blank" title="Behance" data-toggle=tooltip data-placement=top><i class="icon icon-behance"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: true,
+    notify: true,
+    appId: 'QEI0gu3ZchE5x4TcybdvG8iL-gzGzoHsz',
+    appKey: 'bqHluNWepzDS18qbu1Nk8m7Q',
+    placeholder: '留下你的评论o(*￣▽￣*)ブ',
+    avatar: 'monsterid',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>
