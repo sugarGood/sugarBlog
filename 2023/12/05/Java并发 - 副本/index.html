@@ -21,7 +21,7 @@
   <meta name="description" content="# disruptor  # A进程和线程  ## 进程 我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，就被称为「进程」（Process）。   进程的状态  NULL -&gt; 创建状态：⼀个新进程被创建时的第⼀个状态； 创建状态 -&gt; 就绪">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java并发">
-<meta property="og:url" content="http://example.com/2023/06/26/Java%E5%B9%B6%E5%8F%91/index.html">
+<meta property="og:url" content="http://example.com/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/index.html">
 <meta property="og:site_name" content="SugarGood">
 <meta property="og:description" content="# disruptor  # A进程和线程  ## 进程 我们编写的代码只是⼀个存储在硬盘的静态⽂件，通过编译后就会⽣成⼆进制可执行文件，当我们运⾏这个可执⾏⽂件后，它会被装载到内存中，接着 CPU 会执⾏程序中的每⼀条指令，那么这个运⾏中的程序，就被称为「进程」（Process）。   进程的状态  NULL -&gt; 创建状态：⼀个新进程被创建时的第⼀个状态； 创建状态 -&gt; 就绪">
 <meta property="og:locale" content="zh_CN">
@@ -80,7 +80,7 @@
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1651917371100-4cc26771-5c62-4c62-9941-145c70d6e7af.png#averageHue=%23f5f4f4&clientId=u4d909540-ad5c-4&from=paste&height=661&id=u29f33815&originHeight=1091&originWidth=1621&originalType=binary&ratio=1&rotation=0&showTitle=false&size=215501&status=done&style=none&taskId=u53d262f9-efc8-4c3c-8fd6-83c42798683&title=&width=982.4241856416537">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1651917379646-6e0109e8-bcee-4326-b894-d977faa0d175.png#averageHue=%23f4f4f3&clientId=u4d909540-ad5c-4&from=paste&height=613&id=u3dc6bedb&originHeight=1012&originWidth=1638&originalType=binary&ratio=1&rotation=0&showTitle=false&size=204612&status=done&style=none&taskId=u697f51a6-9611-44f0-a524-b21e1021f26&title=&width=992.7272153491849">
 <meta property="og:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652337060162-a0fcea0d-a450-4433-93a6-65b0d9f33e98.png#averageHue=%23eaeee7&clientId=uda4812d7-352a-4&from=paste&height=413&id=u55a4105c&originHeight=620&originWidth=1522&originalType=binary&ratio=1&rotation=0&showTitle=false&size=449961&status=done&style=none&taskId=u11a72a2e-02a2-4b63-9698-9280efc6a4a&title=&width=1014.6666666666666">
-<meta property="article:published_time" content="2023-06-26T02:24:54.879Z">
+<meta property="article:published_time" content="2023-12-05T03:19:28.304Z">
 <meta property="article:modified_time" content="2023-07-07T14:02:17.989Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="Java基础">
@@ -88,7 +88,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2022/png/22451783/1652014692593-7cc7e2f5-2051-4120-b45f-a72e9983d1dc.png#averageHue=%23f9f5ef&clientId=u34a44d6d-2b13-4&from=paste&height=238&id=uf1046b14&originHeight=392&originWidth=1104&originalType=binary&ratio=1&rotation=0&showTitle=false&size=82991&status=done&style=none&taskId=u2344707a-b4f7-4790-82a7-5bc483989c0&title=&width=669.0908704184983">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://example.com/2023/06/26/Java%E5%B9%B6%E5%8F%91/index.html">
+  <link rel="canonical" href="http://example.com/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/index.html">
   
     <link rel="alternate" href="/atom.xml" title="SugarGood" type="application/atom+xml">
   
@@ -390,7 +390,7 @@
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Java并发" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Java并发 - 副本" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
@@ -405,8 +405,8 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2023/06/26/Java%E5%B9%B6%E5%8F%91/" class="article-date">
-	  <time datetime="2023-06-26T02:24:54.879Z" itemprop="datePublished">2023-06-26</time>
+	<a href="/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/" class="article-date">
+	  <time datetime="2023-12-05T03:19:28.304Z" itemprop="datePublished">2023-12-05</time>
 	</a>
 </span>
         
@@ -431,15 +431,15 @@
 	
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/06/26/Java%E5%B9%B6%E5%8F%91/#comments" class="article-comment-link">评论</a>
-            <span class="valine-comment-count" data-xid="/2023/06/26/Java%E5%B9%B6%E5%8F%91/"></span>条
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/#comments" class="article-comment-link">评论</a>
+            <span class="valine-comment-count" data-xid="/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/"></span>条
         </span>
 
         
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2023/06/26/Java%E5%B9%B6%E5%8F%91/" class="leancloud_visitors"  data-flag-title="Java并发">
+    	<span id="/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/" class="leancloud_visitors"  data-flag-title="Java并发">
 			<span class="leancloud-visitors-count">0</span>
 		</span>
     </span>
@@ -1048,7 +1048,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://example.com/2023/06/26/Java%E5%B9%B6%E5%8F%91/" title="Java并发" target="_blank" rel="external">http://example.com/2023/06/26/Java并发/</a>
+      <a href="http://example.com/2023/12/05/Java%E5%B9%B6%E5%8F%91%20-%20%E5%89%AF%E6%9C%AC/" title="Java并发" target="_blank" rel="external">http://example.com/2023/12/05/Java并发 - 副本/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -1094,13 +1094,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2023/07/07/%E6%B5%85%E6%9E%90nacos%E6%BA%90%E7%A0%81%E4%B8%80%20%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="浅析nacos源码一 服务注册"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2023/06/26/Mysql/" title="Mysql"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2023/07/07/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" title="操作系统"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
